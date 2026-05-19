@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distribution Department — KPI Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg2:#f5f5f4;--bg3:#eeede9;
+  --text:#1a1a1a;--text2:#5f5e5a;--text3:#888780;
+  --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);
+  --rad:8px;--rad-lg:12px;
+  --sg:#1D9E75;--g:#63C132;--y:#EF9F27;--r:#E24B4A;--n:#B4B2A9;
+  --sg-bg:#E1F5EE;--sg-txt:#0F6E56;
+  --g-bg:#EAF3DE;--g-txt:#3B6D11;
+  --y-bg:#FAEEDA;--y-txt:#854F0B;
+  --r-bg:#FCEBEB;--r-txt:#A32D2D;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1a;--bg2:#262624;--bg3:#302f2d;
+  --text:#f0ede8;--text2:#a8a69f;--text3:#6e6d68;
+  --border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.2);
+}}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);font-size:14px;line-height:1.5}
+.wrap{max-width:1200px;margin:0 auto;padding:1.25rem 1rem}
+.hdr{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rad-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+.hdr h1{font-size:15px;font-weight:600;color:var(--text)}
+.hdr p{font-size:11px;color:var(--text2);margin-top:2px}
+.hdr-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.status{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:5px}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--n);flex-shrink:0}
+.sdot.ok{background:var(--sg)}.sdot.err{background:var(--r)}
+button{font-family:inherit;cursor:pointer}
+.btn{padding:6px 13px;font-size:12px;border:0.5px solid var(--border2);border-radius:var(--rad);background:var(--bg2);color:var(--text);display:inline-flex;align-items:center;gap:5px}
+.btn:hover{background:var(--bg3)}
+.btn-primary{background:#1a3c5e;color:#fff;border-color:#1a3c5e}
+.btn-primary:hover{background:#0f2a45}
+.filter-bar{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rad-lg);padding:.75rem 1.25rem;margin-bottom:1rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.filter-bar label{font-size:12px;color:var(--text2);font-weight:500}
+.filter-bar select{padding:5px 8px;font-size:12px;border:0.5px solid var(--border2);border-radius:var(--rad);background:var(--bg2);color:var(--text);font-family:inherit;cursor:pointer}
+.filter-bar select:focus{outline:none;border-color:#378ADD}
+.filter-info{font-size:11px;color:var(--text2);font-style:italic;margin-left:auto}
+.tabs{display:flex;gap:3px;background:var(--bg);border:0.5px solid var(--border);padding:4px;border-radius:var(--rad-lg);margin-bottom:1rem;flex-wrap:wrap}
+.tab{padding:5px 14px;border-radius:6px;font-size:12px;border:none;background:transparent;color:var(--text2);font-family:inherit;cursor:pointer}
+.tab.active{background:var(--bg2);color:var(--text);font-weight:500;border:0.5px solid var(--border)}
+.sec{display:none}.sec.active{display:block}
+.rag-bar{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:1rem;font-size:11px;color:var(--text2)}
+.rag-bar span{display:flex;align-items:center;gap:5px}
+.rd{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.rd-sg{background:var(--sg)}.rd-g{background:var(--g)}.rd-y{background:var(--y)}.rd-r{background:var(--r)}.rd-n{background:var(--n)}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+@media(max-width:700px){.chart-grid{grid-template-columns:1fr}}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.25rem}
+.card{background:var(--bg2);border-radius:var(--rad);padding:.875rem 1rem}
+.clabel{font-size:11px;color:var(--text2);margin-bottom:5px}
+.cval{font-size:21px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px}
+.csub{font-size:10px;color:var(--text3);margin-top:3px}
+.rbadge{font-size:10px;padding:2px 7px;border-radius:var(--rad);font-weight:500;display:inline-block;margin-top:3px}
+.rbadge.sg{background:var(--sg-bg);color:var(--sg-txt)}.rbadge.g{background:var(--g-bg);color:var(--g-txt)}
+.rbadge.y{background:var(--y-bg);color:var(--y-txt)}.rbadge.r{background:var(--r-bg);color:var(--r-txt)}
+.rbadge.n{background:var(--bg3);color:var(--text3)}
+.cc{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rad-lg);padding:1rem 1.25rem;margin-bottom:1.25rem}
+.ct{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.cs{font-size:11px;color:var(--text2);margin-bottom:.75rem}
+.leg{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;font-size:11px;color:var(--text2)}
+.leg span{display:flex;align-items:center;gap:4px}
+.lsq{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.lln{width:16px;height:2px;flex-shrink:0}
+.cw{position:relative;width:100%}
+.tpanel{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rad-lg);padding:1rem 1.25rem;margin-bottom:1.25rem}
+.tptitle{font-size:13px;font-weight:500;color:var(--text);margin-bottom:10px}
+.rrow{display:grid;grid-template-columns:95px 1fr 1fr 1fr 1fr;gap:5px;align-items:center;margin-bottom:6px}
+.rlbl{font-size:11px;color:var(--text2);font-weight:500}
+.rch{font-size:10px;text-align:center;font-weight:500;padding:4px 2px;border-radius:var(--rad)}
+.ch-sg{background:var(--sg-bg);color:var(--sg-txt)}.ch-g{background:var(--g-bg);color:var(--g-txt)}
+.ch-y{background:var(--y-bg);color:var(--y-txt)}.ch-r{background:var(--r-bg);color:var(--r-txt)}
+.ri{padding:5px 7px;font-size:12px;border:0.5px solid var(--border2);border-radius:var(--rad);background:var(--bg2);color:var(--text);width:100%;font-family:inherit}
+.ri:focus{outline:none;border-color:#378ADD}
+.info-bar{background:var(--bg2);border-radius:var(--rad);padding:8px 12px;font-size:11px;color:var(--text2);margin-bottom:1rem}
+.err-box{background:var(--r-bg);border:0.5px solid #F09595;border-radius:var(--rad);padding:10px 14px;font-size:12px;color:var(--r-txt);margin-bottom:1rem}
+.loading-box{background:var(--bg2);border-radius:var(--rad);padding:10px 14px;font-size:12px;color:var(--text2);margin-bottom:1rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hdr">
+  <div>
+    <h1>&#x1F4CA; Distribution Department — KPI Dashboard</h1>
+    <p id="last-updated">Connecting to Google Sheet...</p>
+  </div>
+  <div class="hdr-right">
+    <div class="status"><span class="sdot" id="conn-dot"></span><span id="conn-txt">Loading</span></div>
+    <button class="btn" onclick="loadAll()">&#x21BB; Refresh</button>
+    <a href="https://docs.google.com/spreadsheets/d/1FiAd62KDk6w6z9crVBE1ULCwcED1jehdZsX5lTPdD_I/edit" target="_blank" class="btn">&#x1F4C4; Open sheet</a>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <label>Period:</label>
+  <select id="filter-period" onchange="applyFilter()">
+    <option value="4">Last 4 weeks</option>
+    <option value="8">Last 8 weeks</option>
+    <option value="12" selected>Last 12 weeks</option>
+    <option value="26">Last 26 weeks</option>
+    <option value="52">Last 52 weeks</option>
+    <option value="all">All data</option>
+  </select>
+  <label>From:</label>
+  <select id="filter-from" onchange="applyFilter()"><option value="">—</option></select>
+  <label>To:</label>
+  <select id="filter-to" onchange="applyFilter()"><option value="">—</option></select>
+  <span class="filter-info" id="filter-info">No data loaded</span>
+</div>
+
+<div id="msg-area"></div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('overview',this)">Overview</button>
+  <button class="tab" onclick="showTab('packaging',this)">Packaging</button>
+  <button class="tab" onclick="showTab('delivery',this)">Delivery</button>
+  <button class="tab" onclick="showTab('maintenance',this)">Maintenance</button>
+  <button class="tab" onclick="showTab('targets',this)">Targets</button>
+</div>
+
+<div class="rag-bar">
+  <span><span class="rd rd-sg"></span>Super green</span>
+  <span><span class="rd rd-g"></span>Green</span>
+  <span><span class="rd rd-y"></span>Yellow</span>
+  <span><span class="rd rd-r"></span>Red</span>
+  <span><span class="rd rd-n"></span>No target set</span>
+</div>
+
+<!-- ═══ OVERVIEW ═══ -->
+<div id="sec-overview" class="sec active">
+  <div class="cards">
+    <div class="card"><div class="clabel">Boxes / hr (latest)</div><div class="cval"><span id="ov-bph">—</span><span class="rd rd-n" id="ov-bph-dot"></span></div><span class="rbadge n" id="ov-bph-b">No data</span></div>
+    <div class="card"><div class="clabel">Cost / box (latest)</div><div class="cval"><span id="ov-cpb">—</span><span class="rd rd-n" id="ov-cpb-dot"></span></div><span class="rbadge n" id="ov-cpb-b">No data</span></div>
+    <div class="card"><div class="clabel">Cost / km (latest)</div><div class="cval"><span id="ov-cpk">—</span><span class="rd rd-n" id="ov-cpk-dot"></span></div><span class="rbadge n" id="ov-cpk-b">No data</span></div>
+    <div class="card"><div class="clabel">Cost / delivery (latest)</div><div class="cval"><span id="ov-cpd">—</span><span class="rd rd-n" id="ov-cpd-dot"></span></div><span class="rbadge n" id="ov-cpd-b">No data</span></div>
+    <div class="card"><div class="clabel">Maintenance (latest)</div><div class="cval"><span id="ov-maint">—</span><span class="rd rd-n" id="ov-maint-dot"></span></div><span class="rbadge n" id="ov-maint-b">No data</span></div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="cc">
+      <div class="ct">Boxes per hour</div>
+      <div class="cs">Weekly trend — Packaging Station</div>
+      <div class="leg"><span><span class="lsq" style="background:#378ADD"></span>Boxes/hr</span><span><span class="lln" style="background:#1D9E75"></span>SG</span><span><span class="lln" style="background:#63C132"></span>G</span><span><span class="lln" style="background:#EF9F27"></span>Y</span></div>
+      <div class="cw" style="height:200px"><canvas id="ch-ov-bph"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ct">Cost per box ($)</div>
+      <div class="cs">Weekly trend — Department</div>
+      <div class="leg"><span><span class="lsq" style="background:#1D9E75"></span>Cost/box</span><span><span class="lln" style="background:#63C132"></span>G</span><span><span class="lln" style="background:#EF9F27"></span>Y</span></div>
+      <div class="cw" style="height:200px"><canvas id="ch-ov-cpb"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ct">Cost per km ($)</div>
+      <div class="cs">Weekly trend — Delivery Area</div>
+      <div class="leg"><span><span class="lsq" style="background:#534AB7"></span>Cost/km</span><span><span class="lln" style="background:#63C132"></span>G</span><span><span class="lln" style="background:#EF9F27"></span>Y</span></div>
+      <div class="cw" style="height:200px"><canvas id="ch-ov-cpk"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ct">Cost per delivery ($)</div>
+      <div class="cs">Weekly trend — Delivery Area</div>
+      <div class="leg"><span><span class="lsq" style="background:#D85A30"></span>Cost/delivery</span><span><span class="lln" style="background:#63C132"></span>G</span><span><span class="lln" style="background:#EF9F27"></span>Y</span></div>
+      <div class="cw" style="height:200px"><canvas id="ch-ov-cpd"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="cc">
+      <div class="ct">Maintenance cost ($)</div>
+      <div class="cs">Weekly trend — Department</div>
+      <div class="leg"><span><span class="lsq" style="background:#BA7517"></span>Maintenance</span><span><span class="lln" style="background:#1D9E75"></span>SG</span><span><span class="lln" style="background:#63C132"></span>G</span><span><span class="lln" style="background:#EF9F27"></span>Y</span></div>
+      <div class="cw" style="height:200px"><canvas id="ch-ov-maint"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ct">Weekly cost breakdown — stacked with % participation</div>
+      <div class="cs">Hover each segment for dollar amount and % of weekly total</div>
+      <div class="leg"><span><span class="lsq" style="background:#85B7EB"></span>Labour</span><span><span class="lsq" style="background:#AFA9EC"></span>Transport</span><span><span class="lsq" style="background:#FAC775"></span>3PL</span><span><span class="lsq" style="background:#F09595"></span>Maintenance</span></div>
+      <div class="cw" style="height:200px"><canvas id="ch-ov-breakdown"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PACKAGING ═══ -->
+<div id="sec-packaging" class="sec">
+  <div class="cards">
+    <div class="card"><div class="clabel">Boxes / hr (latest day)</div><div class="cval"><span id="pk-bph">—</span><span class="rd rd-n" id="pk-bph-dot"></span></div><span class="rbadge n" id="pk-bph-b">No data</span></div>
+    <div class="card"><div class="clabel">Boxes packed (latest day)</div><div class="cval"><span id="pk-boxes">—</span></div><div class="csub">Daily total</div></div>
+    <div class="card"><div class="clabel">Hours worked (latest day)</div><div class="cval"><span id="pk-hrs">—</span></div><div class="csub">Daily total</div></div>
+    <div class="card"><div class="clabel">Packers on shift (latest day)</div><div class="cval"><span id="pk-pkrs">—</span></div><div class="csub">Daily total</div></div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="cc">
+      <div class="ct">Boxes per hour — daily</div>
+      <div class="cs">Each bar = one day. Bar colour = RAG status.</div>
+      <div class="leg"><span><span class="lsq" style="background:#378ADD"></span>Boxes/hr</span><span><span class="lln" style="background:#1D9E75"></span>SG</span><span><span class="lln" style="background:#63C132"></span>G</span><span><span class="lln" style="background:#EF9F27"></span>Y</span></div>
+      <div class="cw" style="height:220px"><canvas id="ch-pk-bph-daily"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ct">Boxes per hour — weekly avg</div>
+      <div class="cs">Weekly average from daily data.</div>
+      <div class="leg"><span><span class="lsq" style="background:#378ADD"></span>Avg boxes/hr</span><span><span class="lln" style="background:#63C132"></span>G</span><span><span class="lln" style="background:#EF9F27"></span>Y</span></div>
+      <div class="cw" style="height:220px"><canvas id="ch-pk-bph-weekly"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ct">Boxes packed — daily</div>
+      <div class="cs">Total boxes packed each day.</div>
+      <div class="leg"><span><span class="lsq" style="background:#5DCAA5"></span>Boxes packed</span></div>
+      <div class="cw" style="height:220px"><canvas id="ch-pk-boxes-daily"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ct">Boxes packed — weekly total</div>
+      <div class="cs">Sum of daily boxes packed per week.</div>
+      <div class="leg"><span><span class="lsq" style="background:#5DCAA5"></span>Weekly total</span></div>
+      <div class="cw" style="height:220px"><canvas id="ch-pk-boxes-weekly"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ct">Hours worked — daily</div>
+      <div class="cs">Total packing hours worked each day.</div>
+      <div class="leg"><span><span class="lsq" style="background:#AFA9EC"></span>Hours worked</span></div>
+      <div class="cw" style="height:220px"><canvas id="ch-pk-hrs-daily"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ct">Hours worked — weekly total</div>
+      <div class="cs">Sum of daily hours worked per week.</div>
+      <div class="leg"><span><span class="lsq" style="background:#AFA9EC"></span>Weekly total</span></div>
+      <div class="cw" style="height:220px"><canvas id="ch-pk-hrs-weekly"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DELIVERY ═══ -->
+<div id="sec-delivery" class="sec">
+  <div class="cards">
+    <div class="card"><div class="clabel">Cost / km (latest week)</div><div class="cval"><span id="dl-cpk">—</span><span class="rd rd-n" id="dl-cpk-dot"></span></div><span class="rbadge n" id="dl-cpk-b">No data</span></div>
+    <div class="card"><div class="clabel">Cost / delivery (latest week)</div><div class="cval"><span id="dl-cpd">—</span><span class="rd rd-n" id="dl-cpd-dot"></span></div><span class="rbadge n" id="dl-cpd-b">No data</span></div>
+    <div class="card"><div class="clabel">Total deliveries (latest week)</div><div class="cval"><span id="dl-del">—</span></div><div class="csub">MM + 3PL</div></div>
+    <div class="card"><div class="clabel">Total mileage (latest week)</div><div class="cval"><span id="dl-km">—</span></div><div class="csub">MM + 3PL km</div></div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="cc">
+      <div class="ct">Cost per km ($) — weekly</div>
+      <div class="cs">Point colour = RAG status.</div>
+      <div class="leg"><span><span class="lsq" style="background:#534AB7"></span>Cost/km</span><span><span class="lln" style="background:#1D9E75"></span>SG</span><span><span class="lln" style="background:#63C132"></span>G</span><span><span class="lln" style="background:#EF9F27"></span>Y</span></div>
+      <div class="cw" style="height:220px"><canvas id="ch-cpk"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ct">Cost per delivery ($) — weekly</div>
+      <div class="cs">Point colour = RAG status.</div>
+      <div class="leg"><span><span class="lsq" style="background:#D85A30"></span>Cost/delivery</span><span><span class="lln" style="background:#1D9E75"></span>SG</span><span><span class="lln" style="background:#63C132"></span>G</span><span><span class="lln" style="background:#EF9F27"></span>Y</span></div>
+      <div class="cw" style="height:220px"><canvas id="ch-cpd"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ct">Total deliveries — weekly</div>
+      <div class="cs">Mad Mexican vs 3PL deliveries per week.</div>
+      <div class="leg"><span><span class="lsq" style="background:#378ADD"></span>Mad Mexican</span><span><span class="lsq" style="background:#B4B2A9"></span>3PL</span></div>
+      <div class="cw" style="height:220px"><canvas id="ch-del"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ct">Total mileage (km) — weekly</div>
+      <div class="cs">Mad Mexican vs 3PL km per week.</div>
+      <div class="leg"><span><span class="lsq" style="background:#378ADD"></span>Mad Mexican</span><span><span class="lsq" style="background:#B4B2A9"></span>3PL</span></div>
+      <div class="cw" style="height:220px"><canvas id="ch-km"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MAINTENANCE ═══ -->
+<div id="sec-maintenance" class="sec">
+  <div class="cards">
+    <div class="card"><div class="clabel">Maint. actual (latest)</div><div class="cval"><span id="mt-actual">—</span><span class="rd rd-n" id="mt-dot"></span></div><span class="rbadge n" id="mt-b">No data</span></div>
+    <div class="card"><div class="clabel">Green threshold</div><div class="cval"><span id="mt-budget">—</span></div><div class="csub">Your target</div></div>
+    <div class="card"><div class="clabel">Variance (latest)</div><div class="cval"><span id="mt-var">—</span></div><div class="csub" id="mt-var-sub">vs green threshold</div></div>
+    <div class="card"><div class="clabel">YTD spend</div><div class="cval"><span id="mt-ytd">—</span></div><div class="csub">Selected period</div></div>
+  </div>
+  <div class="cc">
+    <div class="ct">Maintenance cost ($) — actual vs thresholds</div>
+    <div class="cs">Bar colour = RAG status.</div>
+    <div class="leg"><span><span class="lsq" style="background:#378ADD"></span>Actual</span><span><span class="lln" style="background:#1D9E75"></span>SG</span><span><span class="lln" style="background:#63C132"></span>G</span><span><span class="lln" style="background:#EF9F27"></span>Y</span></div>
+    <div class="cw" style="height:240px"><canvas id="ch-maint"></canvas></div>
+  </div>
+  <div class="cc">
+    <div class="ct">Maintenance — cumulative YTD</div>
+    <div class="cs">Running total vs cumulative Green threshold.</div>
+    <div class="leg"><span><span class="lsq" style="background:#378ADD"></span>YTD actual</span><span><span class="lln" style="background:#E24B4A"></span>YTD budget</span></div>
+    <div class="cw" style="height:210px"><canvas id="ch-maint-ytd"></canvas></div>
+  </div>
+</div>
+
+<!-- ═══ TARGETS ═══ -->
+<div id="sec-targets" class="sec">
+  <div class="info-bar">Set your own thresholds for each KPI. Red is automatic — anything worse than Yellow.</div>
+  <div class="tpanel">
+    <div class="tptitle">Boxes per hour</div>
+    <div class="rrow"><div></div><div class="rch ch-sg">Super green<br><small>Above this</small></div><div class="rch ch-g">Green<br><small>Above this</small></div><div class="rch ch-y">Yellow<br><small>Above this</small></div><div class="rch ch-r">Red — auto</div></div>
+    <div class="rrow"><div class="rlbl">boxes/hr</div><input class="ri" id="t-bph-sg" type="number" placeholder="e.g. 90" min="0"><input class="ri" id="t-bph-g" type="number" placeholder="e.g. 80" min="0"><input class="ri" id="t-bph-y" type="number" placeholder="e.g. 70" min="0"><div class="rch ch-r" style="font-size:11px">Below yellow</div></div>
+  </div>
+  <div class="tpanel">
+    <div class="tptitle">Cost per box ($)</div>
+    <div class="rrow"><div></div><div class="rch ch-sg">Super green<br><small>Below this</small></div><div class="rch ch-g">Green<br><small>Below this</small></div><div class="rch ch-y">Yellow<br><small>Below this</small></div><div class="rch ch-r">Red — auto</div></div>
+    <div class="rrow"><div class="rlbl">$ / box</div><input class="ri" id="t-cpb-sg" type="number" placeholder="e.g. 0.40" min="0" step="0.01"><input class="ri" id="t-cpb-g" type="number" placeholder="e.g. 0.50" min="0" step="0.01"><input class="ri" id="t-cpb-y" type="number" placeholder="e.g. 0.65" min="0" step="0.01"><div class="rch ch-r" style="font-size:11px">Above yellow</div></div>
+  </div>
+  <div class="tpanel">
+    <div class="tptitle">Cost per km ($)</div>
+    <div class="rrow"><div></div><div class="rch ch-sg">Super green<br><small>Below this</small></div><div class="rch ch-g">Green<br><small>Below this</small></div><div class="rch ch-y">Yellow<br><small>Below this</small></div><div class="rch ch-r">Red — auto</div></div>
+    <div class="rrow"><div class="rlbl">$ / km</div><input class="ri" id="t-cpk-sg" type="number" placeholder="e.g. 1.00" min="0" step="0.01"><input class="ri" id="t-cpk-g" type="number" placeholder="e.g. 1.20" min="0" step="0.01"><input class="ri" id="t-cpk-y" type="number" placeholder="e.g. 1.50" min="0" step="0.01"><div class="rch ch-r" style="font-size:11px">Above yellow</div></div>
+  </div>
+  <div class="tpanel">
+    <div class="tptitle">Cost per delivery ($)</div>
+    <div class="rrow"><div></div><div class="rch ch-sg">Super green<br><small>Below this</small></div><div class="rch ch-g">Green<br><small>Below this</small></div><div class="rch ch-y">Yellow<br><small>Below this</small></div><div class="rch ch-r">Red — auto</div></div>
+    <div class="rrow"><div class="rlbl">$ / delivery</div><input class="ri" id="t-cpd-sg" type="number" placeholder="e.g. 30" min="0" step="0.01"><input class="ri" id="t-cpd-g" type="number" placeholder="e.g. 40" min="0" step="0.01"><input class="ri" id="t-cpd-y" type="number" placeholder="e.g. 50" min="0" step="0.01"><div class="rch ch-r" style="font-size:11px">Above yellow</div></div>
+  </div>
+  <div class="tpanel">
+    <div class="tptitle">Maintenance cost ($)</div>
+    <div class="rrow"><div></div><div class="rch ch-sg">Super green<br><small>Below this</small></div><div class="rch ch-g">Green<br><small>Below this</small></div><div class="rch ch-y">Yellow<br><small>Below this</small></div><div class="rch ch-r">Red — auto</div></div>
+    <div class="rrow"><div class="rlbl">$ total</div><input class="ri" id="t-maint-sg" type="number" placeholder="e.g. 2000" min="0"><input class="ri" id="t-maint-g" type="number" placeholder="e.g. 3000" min="0"><input class="ri" id="t-maint-y" type="number" placeholder="e.g. 4000" min="0"><div class="rch ch-r" style="font-size:11px">Above yellow</div></div>
+  </div>
+  <button class="btn btn-primary" onclick="saveTargets()">&#x1F4BE; Save targets</button>
+  <p style="font-size:11px;color:var(--text2);font-style:italic;margin-top:8px" id="t-notice"></p>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ═══════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════
+const SHEET_ID   = '1FiAd62KDk6w6z9crVBE1ULCwcED1jehdZsX5lTPdD_I';
+const API_KEY    = 'AIzaSyAtuViUX3w3F-zPDYcQPPLEn3hosWjLkK4';
+const TAB_WEEKLY = 'Weekly KPI Data';
+const TAB_DAILY  = 'Daily KPI Data';
+
+// Weekly KPI Data columns (0-based)
+const CW = {
+  weekStart:0, driversTotal:8, packersTotal:13, tempTotal:16,
+  totalLabour:20, totalTransport:60, totalFreight:41,
+  totalMaint:50, bph:58, cpb:59, cpk:62, cpd:63
+};
+
+// Daily KPI Data columns (0-based)
+// A+B merged = date (col 0), C=2 Boxes Packed, D=3 Packers, E=4 Hours,
+// F=5 MM km, G=6 3PL km, H=7 Total km, I=8 MM del, J=9 3PL del, K=10 Total del, L=11 bph
+const CD = {
+  date:0, boxes:2, packers:3, hours:4,
+  kmMM:5, km3pl:6, kmTotal:7,
+  delMM:8, del3pl:9, delTotal:10, bph:11
+};
+
+let ALL_WEEKLY=[], ALL_DAILY=[], WEEKLY=[], DAILY=[], CH={};
+let T={
+  bph:{sg:null,g:null,y:null}, cpb:{sg:null,g:null,y:null},
+  cpk:{sg:null,g:null,y:null}, cpd:{sg:null,g:null,y:null},
+  maint:{sg:null,g:null,y:null}
+};
+
+// ═══════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════
+function showTab(id,btn){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  btn.classList.add('active');
+  renderCharts();
+}
+
+function setStatus(state,txt){
+  document.getElementById('conn-dot').className='sdot'+(state==='ok'?' ok':state==='err'?' err':'');
+  document.getElementById('conn-txt').textContent=txt;
+}
+
+function showMsg(type,txt){
+  const a=document.getElementById('msg-area');
+  a.innerHTML=type==='err'?`<div class="err-box">${txt}</div>`:
+              type==='loading'?`<div class="loading-box">&#x23F3; ${txt}</div>`:'';
+}
+
+function pn(v){
+  if(v===null||v===undefined||v==='') return null;
+  const n=parseFloat(v.toString().replace(/[$,\s]/g,''));
+  return isNaN(n)?null:n;
+}
+
+// All $ with comma thousands + 2 decimals
+function f$(v){ if(v===null||v===undefined) return '—'; return '$'+Number(v).toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function f1(v){ return v!==null?(+v).toFixed(1):'—'; }
+function f0(v){ return v!==null?Math.round(v).toLocaleString():'—'; }
+
+function getRag(v,t,lb){
+  if(v===null||v===undefined) return 'n';
+  if(!t.sg&&!t.g&&!t.y) return 'n';
+  if(lb){ if(t.sg!==null&&v<=t.sg)return 'sg'; if(t.g!==null&&v<=t.g)return 'g'; if(t.y!==null&&v<=t.y)return 'y'; return 'r'; }
+  else   { if(t.sg!==null&&v>=t.sg)return 'sg'; if(t.g!==null&&v>=t.g)return 'g'; if(t.y!==null&&v>=t.y)return 'y'; return 'r'; }
+}
+const RLBL={sg:'Super green',g:'On target',y:'Watch zone',r:'Off track',n:'No target set'};
+const RCOL={sg:'#1D9E75',g:'#63C132',y:'#EF9F27',r:'#E24B4A',n:'#B4B2A9'};
+
+function applyCard(valId,dotId,badgeId,v,t,lb,fmt){
+  const rag=getRag(v,t,lb);
+  if(v!==null) document.getElementById(valId).textContent=fmt(v);
+  document.getElementById(dotId).className='rd rd-'+rag;
+  const b=document.getElementById(badgeId); b.className='rbadge '+rag; b.textContent=RLBL[rag];
+}
+
+function tLine(n,val,color){
+  if(!val) return null;
+  return {type:'line',data:Array(n).fill(val),borderColor:color,borderWidth:1.2,borderDash:[4,3],pointRadius:0,tension:0,label:'_'};
+}
+
+function mkChart(id,type,labels,datasets,opts){
+  if(CH[id]) CH[id].destroy();
+  const ctx=document.getElementById(id);
+  if(!ctx||!labels.length) return;
+  const o=opts||{};
+  CH[id]=new Chart(ctx,{
+    type,
+    data:{labels,datasets:datasets.filter(Boolean)},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{
+        if(c.dataset.label==='_') return null;
+        const v=c.parsed.y; if(v==null) return null;
+        let base;
+        if(o.money) base=f$(v);
+        else if(o.dec!=null) base=(+v).toFixed(o.dec);
+        else base=(+v).toFixed(2);
+        if(o.showPct&&c.chart.data.datasets){
+          const total=c.chart.data.datasets.filter(ds=>ds.label!=='_').reduce((s,ds)=>s+(ds.data[c.dataIndex]!=null?+ds.data[c.dataIndex]:0),0);
+          const pct=total>0?((+v/total)*100).toFixed(1)+'%':'—';
+          return `${c.dataset.label}: ${base} (${pct})`;
+        }
+        return `${c.dataset.label}: ${base}`;
+      }}}},
+      scales:{
+        x:{ticks:{font:{size:10},autoSkip:true,maxRotation:40,maxTicksLimit:16},grid:{display:false}},
+        y:{ticks:{font:{size:10},callback:v=>o.money?f$(v):o.dec!=null?(+v).toFixed(o.dec):(+v).toFixed(1)},
+           grid:{color:'rgba(128,128,128,0.1)'},stacked:o.stacked||false}
+      }
+    }
+  });
+}
+
+function ragColors(vals,t,lb,alpha){
+  return vals.map(v=>RCOL[getRag(v,t,lb)]+(alpha||''));
+}
+
+// ═══════════════════════════════════════
+// LOAD
+// ═══════════════════════════════════════
+async function fetchTab(tab, range){
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(tab)}!${range}?key=${API_KEY}`;
+  const res=await fetch(url);
+  if(!res.ok) throw new Error(`HTTP ${res.status} loading ${tab}`);
+  const json=await res.json();
+  return json.values||[];
+}
+
+async function loadAll(){
+  showMsg('loading','Loading data from Google Sheet...');
+  setStatus('','Loading');
+  try {
+    const [wRaw, dRaw] = await Promise.all([
+      fetchTab(TAB_WEEKLY,'A5:BM300'),
+      fetchTab(TAB_DAILY, 'A5:L300')
+    ]);
+
+    // Parse weekly rows — only rows with at least one KPI value
+    ALL_WEEKLY = wRaw
+      .filter(r=>r[CW.weekStart]&&r[CW.weekStart].trim()!=='')
+      .filter(r=>[CW.bph,CW.cpb,CW.cpk,CW.cpd,CW.totalMaint].some(i=>pn(r[i])!==null))
+      .map(r=>({
+        week        : r[CW.weekStart]||'',
+        bph         : pn(r[CW.bph]),
+        cpb         : pn(r[CW.cpb]),
+        cpk         : pn(r[CW.cpk]),
+        cpd         : pn(r[CW.cpd]),
+        maint       : pn(r[CW.totalMaint]),
+        totalLabour : pn(r[CW.totalLabour]),
+        transport   : pn(r[CW.totalTransport]),
+        freight     : pn(r[CW.totalFreight]),
+        driverWages : pn(r[CW.driversTotal]),
+        packerWages : pn(r[CW.packersTotal]),
+        tempTotal   : pn(r[CW.tempTotal]),
+        addlPayroll : (()=>{ const tl=pn(r[CW.totalLabour]),dw=pn(r[CW.driversTotal]),pw=pn(r[CW.packersTotal]),tt=pn(r[CW.tempTotal]); return tl!==null?tl-(dw||0)-(pw||0)-(tt||0):null; })()
+      }));
+
+    // Parse daily rows — only rows with a date and at least boxes or bph
+    ALL_DAILY = dRaw
+      .filter(r=>(r[CD.date]||r[1])&&(r[CD.date]||r[1]).toString().trim()!=='')
+      .filter(r=>pn(r[CD.boxes])!==null||pn(r[CD.bph])!==null)
+      .map(r=>({
+        date    : (r[CD.date]||r[1]||'').toString().trim(),
+        boxes   : pn(r[CD.boxes]),
+        packers : pn(r[CD.packers]),
+        hours   : pn(r[CD.hours]),
+        kmMM    : pn(r[CD.kmMM]),
+        km3pl   : pn(r[CD.km3pl]),
+        kmTotal : pn(r[CD.kmTotal]),
+        delMM   : pn(r[CD.delMM]),
+        del3pl  : pn(r[CD.del3pl]),
+        delTotal: pn(r[CD.delTotal]),
+        bph     : pn(r[CD.bph])
+      }));
+
+    if(!ALL_WEEKLY.length&&!ALL_DAILY.length){
+      showMsg('err','No data found yet. Fill in your sheet and click Refresh.');
+      setStatus('err','No data'); return;
+    }
+
+    populateFilters();
+    applyFilter();
+    showMsg('','');
+    setStatus('ok',`Live — ${ALL_WEEKLY.length} week(s), ${ALL_DAILY.length} day(s)`);
+    document.getElementById('last-updated').textContent=
+      `Last refreshed: ${new Date().toLocaleString()} · ${ALL_WEEKLY.length} week(s), ${ALL_DAILY.length} day(s)`;
+  } catch(e){
+    showMsg('err','Could not load sheet. Error: '+e.message);
+    setStatus('err','Error');
+  }
+}
+
+// ═══════════════════════════════════════
+// FILTER — applied to weekly data; daily follows the same date range
+// ═══════════════════════════════════════
+function populateFilters(){
+  const from=document.getElementById('filter-from');
+  const to=document.getElementById('filter-to');
+  from.innerHTML='<option value="">—</option>';
+  to.innerHTML='<option value="">—</option>';
+  ALL_WEEKLY.forEach((r,i)=>{
+    from.innerHTML+=`<option value="${i}">${r.week}</option>`;
+    to.innerHTML+=`<option value="${i}">${r.week}</option>`;
+  });
+}
+
+function applyFilter(){
+  const period=document.getElementById('filter-period').value;
+  const fromIdx=document.getElementById('filter-from').value;
+  const toIdx=document.getElementById('filter-to').value;
+  let rows=[...ALL_WEEKLY];
+  if(fromIdx!==''||toIdx!==''){
+    const s=fromIdx!==''?parseInt(fromIdx):0;
+    const e=toIdx!==''?parseInt(toIdx):rows.length-1;
+    rows=rows.slice(s,e+1);
+  } else if(period!=='all'){
+    rows=rows.slice(-parseInt(period));
+  }
+  WEEKLY=rows;
+
+  // For daily: keep last N*7 days matching the weekly period
+  const daysToShow = period==='all' ? ALL_DAILY.length : (fromIdx!==''||toIdx!=='') ? ALL_DAILY.length : parseInt(period)*7;
+  DAILY = ALL_DAILY.slice(-daysToShow);
+
+  document.getElementById('filter-info').textContent=
+    `${WEEKLY.length} week(s) · ${DAILY.length} day(s) shown`;
+  renderAll();
+}
+
+// ═══════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════
+function renderAll(){ renderCards(); renderCharts(); }
+
+function renderCards(){
+  if(WEEKLY.length){
+    const lw=WEEKLY[WEEKLY.length-1];
+    applyCard('ov-bph','ov-bph-dot','ov-bph-b',   lw.bph,  T.bph,  false, f1);
+    applyCard('ov-cpb','ov-cpb-dot','ov-cpb-b',   lw.cpb,  T.cpb,  true,  f$);
+    applyCard('ov-cpk','ov-cpk-dot','ov-cpk-b',   lw.cpk,  T.cpk,  true,  f$);
+    applyCard('ov-cpd','ov-cpd-dot','ov-cpd-b',   lw.cpd,  T.cpd,  true,  f$);
+    applyCard('ov-maint','ov-maint-dot','ov-maint-b', lw.maint, T.maint, true, f$);
+    applyCard('dl-cpk','dl-cpk-dot','dl-cpk-b',   lw.cpk,  T.cpk,  true,  f$);
+    applyCard('dl-cpd','dl-cpd-dot','dl-cpd-b',   lw.cpd,  T.cpd,  true,  f$);
+    applyCard('mt-actual','mt-dot','mt-b',         lw.maint,T.maint,true,  f$);
+    // delivery cards from daily last entry
+    const lastDelWeek = DAILY.length ? null : null;
+    // sum the most recent week from daily
+    const recentDays = DAILY.slice(-7);
+    const weekDelTotal = recentDays.reduce((s,d)=>s+(d.delTotal||0),0);
+    const weekKmTotal  = recentDays.reduce((s,d)=>s+(d.kmTotal||0),0);
+    if(weekDelTotal) document.getElementById('dl-del').textContent=f0(weekDelTotal);
+    if(weekKmTotal)  document.getElementById('dl-km').textContent=f0(weekKmTotal);
+    document.getElementById('mt-budget').textContent=T.maint.g?f$(T.maint.g):'—';
+    if(lw.maint!==null&&T.maint.g){
+      const vari=T.maint.g-lw.maint;
+      document.getElementById('mt-var').textContent=(vari>=0?'+':'')+f$(vari);
+      document.getElementById('mt-var-sub').textContent=vari>=0?'Under budget ✓':'Over budget ⚠';
+    }
+    const ytd=WEEKLY.reduce((a,r)=>a+(r.maint||0),0);
+    document.getElementById('mt-ytd').textContent=f$(ytd);
+  }
+
+  if(DAILY.length){
+    const ld=DAILY[DAILY.length-1];
+    applyCard('pk-bph','pk-bph-dot','pk-bph-b', ld.bph, T.bph, false, f1);
+    if(ld.boxes!==null)   document.getElementById('pk-boxes').textContent=f0(ld.boxes);
+    if(ld.hours!==null)   document.getElementById('pk-hrs').textContent=f1(ld.hours);
+    if(ld.packers!==null) document.getElementById('pk-pkrs').textContent=f0(ld.packers);
+  }
+}
+
+// Aggregate daily into weekly buckets using ISO week
+function dailyToWeekly(dailyRows, field){
+  const buckets={};
+  dailyRows.forEach(d=>{
+    const dt=new Date(d.date);
+    if(isNaN(dt)) return;
+    // Get Monday of that week
+    const day=dt.getDay();
+    const diff=dt.getDate()-day+(day===0?-6:1);
+    const mon=new Date(dt.setDate(diff));
+    const key=mon.toLocaleDateString('en-CA',{month:'short',day:'numeric'});
+    if(!buckets[key]) buckets[key]={sum:0,count:0,vals:[]};
+    const v=d[field];
+    if(v!==null&&v!==undefined){ buckets[key].sum+=v; buckets[key].count++; buckets[key].vals.push(v); }
+  });
+  return Object.entries(buckets).map(([k,v])=>({label:k,sum:v.sum,avg:v.count?v.sum/v.count:null,count:v.count}));
+}
+
+function renderCharts(){
+  // ── WEEKLY data arrays ──
+  const wLabels = WEEKLY.map(r=>r.week);
+  const n=wLabels.length;
+  const bphD=WEEKLY.map(r=>r.bph), cpbD=WEEKLY.map(r=>r.cpb);
+  const cpkD=WEEKLY.map(r=>r.cpk), cpdD=WEEKLY.map(r=>r.cpd);
+  const maintD=WEEKLY.map(r=>r.maint);
+
+  // ── DAILY data arrays ──
+  const dLabels=DAILY.map(d=>d.date);
+  const nd=dLabels.length;
+
+  // Aggregate daily to weekly
+  const wBoxes   = dailyToWeekly(DAILY,'boxes');
+  const wHours   = dailyToWeekly(DAILY,'hours');
+  const wBphAvg  = dailyToWeekly(DAILY,'bph');
+  const wDelMM   = dailyToWeekly(DAILY,'delMM');
+  const wDel3pl  = dailyToWeekly(DAILY,'del3pl');
+  const wKmMM    = dailyToWeekly(DAILY,'kmMM');
+  const wKm3pl   = dailyToWeekly(DAILY,'km3pl');
+
+  // ── OVERVIEW charts ──
+  if(n){
+    mkChart('ch-ov-bph','bar',wLabels,[
+      {label:'Boxes/hr',data:bphD,backgroundColor:ragColors(bphD,T.bph,false,'55'),borderColor:ragColors(bphD,T.bph,false),borderWidth:1.5},
+      tLine(n,T.bph.sg,'#1D9E75'),tLine(n,T.bph.g,'#63C132'),tLine(n,T.bph.y,'#EF9F27')
+    ],{dec:1});
+
+    mkChart('ch-ov-cpb','line',wLabels,[
+      {label:'Cost/box',data:cpbD,borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,0.07)',fill:true,tension:0.3,pointRadius:4,pointBackgroundColor:ragColors(cpbD,T.cpb,true)},
+      tLine(n,T.cpb.sg,'#1D9E75'),tLine(n,T.cpb.g,'#63C132'),tLine(n,T.cpb.y,'#EF9F27')
+    ],{money:true});
+
+    mkChart('ch-ov-cpk','line',wLabels,[
+      {label:'Cost/km',data:cpkD,borderColor:'#534AB7',backgroundColor:'rgba(83,74,183,0.07)',fill:true,tension:0.3,pointRadius:4,pointBackgroundColor:ragColors(cpkD,T.cpk,true)},
+      tLine(n,T.cpk.sg,'#1D9E75'),tLine(n,T.cpk.g,'#63C132'),tLine(n,T.cpk.y,'#EF9F27')
+    ],{money:true});
+
+    mkChart('ch-ov-cpd','line',wLabels,[
+      {label:'Cost/del',data:cpdD,borderColor:'#D85A30',backgroundColor:'rgba(216,90,48,0.07)',fill:true,tension:0.3,pointRadius:4,pointBackgroundColor:ragColors(cpdD,T.cpd,true)},
+      tLine(n,T.cpd.sg,'#1D9E75'),tLine(n,T.cpd.g,'#63C132'),tLine(n,T.cpd.y,'#EF9F27')
+    ],{money:true});
+
+    mkChart('ch-ov-maint','bar',wLabels,[
+      {label:'Maintenance',data:maintD,backgroundColor:ragColors(maintD,T.maint,true,'55'),borderColor:ragColors(maintD,T.maint,true),borderWidth:1.5},
+      tLine(n,T.maint.sg,'#1D9E75'),tLine(n,T.maint.g,'#63C132'),tLine(n,T.maint.y,'#EF9F27')
+    ],{money:true});
+
+    mkChart('ch-ov-breakdown','bar',wLabels,[
+      {label:'Labour',    data:WEEKLY.map(r=>r.totalLabour), backgroundColor:'#85B7EB'},
+      {label:'Transport', data:WEEKLY.map(r=>r.transport),   backgroundColor:'#AFA9EC'},
+      {label:'3PL',       data:WEEKLY.map(r=>r.freight),     backgroundColor:'#FAC775'},
+      {label:'Maintenance',data:maintD,                      backgroundColor:'#F09595'}
+    ],{money:true,stacked:true,showPct:true});
+    if(CH['ch-ov-breakdown']){CH['ch-ov-breakdown'].options.scales.x.stacked=true;CH['ch-ov-breakdown'].update();}
+  }
+
+  // ── PACKAGING charts (daily + weekly) ──
+  if(nd){
+    // Daily boxes/hr
+    const bphDailyD=DAILY.map(d=>d.bph);
+    mkChart('ch-pk-bph-daily','bar',dLabels,[
+      {label:'Boxes/hr',data:bphDailyD,backgroundColor:ragColors(bphDailyD,T.bph,false,'55'),borderColor:ragColors(bphDailyD,T.bph,false),borderWidth:1.5},
+      tLine(nd,T.bph.sg,'#1D9E75'),tLine(nd,T.bph.g,'#63C132'),tLine(nd,T.bph.y,'#EF9F27')
+    ],{dec:1});
+
+    // Daily boxes packed
+    mkChart('ch-pk-boxes-daily','bar',dLabels,[
+      {label:'Boxes packed',data:DAILY.map(d=>d.boxes),backgroundColor:'rgba(93,202,165,0.6)',borderColor:'#5DCAA5',borderWidth:1.5}
+    ],{dec:0});
+
+    // Daily hours worked
+    mkChart('ch-pk-hrs-daily','bar',dLabels,[
+      {label:'Hours worked',data:DAILY.map(d=>d.hours),backgroundColor:'rgba(175,169,236,0.6)',borderColor:'#AFA9EC',borderWidth:1.5}
+    ],{dec:1});
+  }
+
+  if(wBphAvg.length){
+    const wlabels=wBphAvg.map(w=>w.label);
+    // Weekly avg bph
+    mkChart('ch-pk-bph-weekly','bar',wlabels,[
+      {label:'Avg boxes/hr',data:wBphAvg.map(w=>w.avg),backgroundColor:'rgba(55,138,221,0.5)',borderColor:'#378ADD',borderWidth:1.5},
+      tLine(wlabels.length,T.bph.sg,'#1D9E75'),tLine(wlabels.length,T.bph.g,'#63C132'),tLine(wlabels.length,T.bph.y,'#EF9F27')
+    ],{dec:1});
+  }
+  if(wBoxes.length){
+    mkChart('ch-pk-boxes-weekly','bar',wBoxes.map(w=>w.label),[
+      {label:'Boxes packed',data:wBoxes.map(w=>w.sum),backgroundColor:'rgba(93,202,165,0.6)',borderColor:'#5DCAA5',borderWidth:1.5}
+    ],{dec:0});
+  }
+  if(wHours.length){
+    mkChart('ch-pk-hrs-weekly','bar',wHours.map(w=>w.label),[
+      {label:'Hours worked',data:wHours.map(w=>w.sum),backgroundColor:'rgba(175,169,236,0.6)',borderColor:'#AFA9EC',borderWidth:1.5}
+    ],{dec:1});
+  }
+
+  // ── DELIVERY charts ──
+  if(n){
+    mkChart('ch-cpk','line',wLabels,[
+      {label:'Cost/km',data:cpkD,borderColor:'#534AB7',backgroundColor:'rgba(83,74,183,0.07)',fill:true,tension:0.3,pointRadius:4,pointBackgroundColor:ragColors(cpkD,T.cpk,true)},
+      tLine(n,T.cpk.sg,'#1D9E75'),tLine(n,T.cpk.g,'#63C132'),tLine(n,T.cpk.y,'#EF9F27')
+    ],{money:true});
+
+    mkChart('ch-cpd','line',wLabels,[
+      {label:'Cost/del',data:cpdD,borderColor:'#D85A30',backgroundColor:'rgba(216,90,48,0.07)',fill:true,tension:0.3,pointRadius:4,pointBackgroundColor:ragColors(cpdD,T.cpd,true)},
+      tLine(n,T.cpd.sg,'#1D9E75'),tLine(n,T.cpd.g,'#63C132'),tLine(n,T.cpd.y,'#EF9F27')
+    ],{money:true});
+  }
+
+  // Deliveries and km from daily aggregated to weekly
+  if(wDelMM.length){
+    const dlabels=wDelMM.map(w=>w.label);
+    mkChart('ch-del','bar',dlabels,[
+      {label:'Mad Mexican',data:wDelMM.map(w=>w.sum), backgroundColor:'#378ADD'},
+      {label:'3PL',        data:wDel3pl.map(w=>w.sum),backgroundColor:'#B4B2A9'}
+    ],{dec:0});
+    if(CH['ch-del']){CH['ch-del'].options.scales.x.stacked=false;CH['ch-del'].update();}
+
+    const klabels=wKmMM.map(w=>w.label);
+    mkChart('ch-km','bar',klabels,[
+      {label:'Mad Mexican',data:wKmMM.map(w=>w.sum), backgroundColor:'#378ADD'},
+      {label:'3PL',        data:wKm3pl.map(w=>w.sum),backgroundColor:'#B4B2A9'}
+    ],{dec:0});
+  }
+
+  // ── MAINTENANCE charts ──
+  if(n){
+    mkChart('ch-maint','bar',wLabels,[
+      {label:'Actual',data:maintD,backgroundColor:ragColors(maintD,T.maint,true,'55'),borderColor:ragColors(maintD,T.maint,true),borderWidth:1.5},
+      tLine(n,T.maint.sg,'#1D9E75'),tLine(n,T.maint.g,'#63C132'),tLine(n,T.maint.y,'#EF9F27')
+    ],{money:true});
+
+    const cumA=[],cumB=[];
+    WEEKLY.forEach((r,i)=>{ cumA.push((cumA[i-1]||0)+(r.maint||0)); cumB.push(T.maint.g?T.maint.g*(i+1):null); });
+    mkChart('ch-maint-ytd','line',wLabels,[
+      {label:'YTD actual',data:cumA,borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,0.07)',fill:true,tension:0.3,pointRadius:3},
+      cumB[0]!=null?{label:'YTD budget',data:cumB,borderColor:'#E24B4A',borderDash:[5,4],pointRadius:0,tension:0}:null
+    ],{money:true});
+  }
+}
+
+// ═══════════════════════════════════════
+// TARGETS
+// ═══════════════════════════════════════
+function saveTargets(){
+  const g=id=>parseFloat(document.getElementById(id).value)||null;
+  T.bph  ={sg:g('t-bph-sg'), g:g('t-bph-g'), y:g('t-bph-y')};
+  T.cpb  ={sg:g('t-cpb-sg'), g:g('t-cpb-g'), y:g('t-cpb-y')};
+  T.cpk  ={sg:g('t-cpk-sg'), g:g('t-cpk-g'), y:g('t-cpk-y')};
+  T.cpd  ={sg:g('t-cpd-sg'), g:g('t-cpd-g'), y:g('t-cpd-y')};
+  T.maint={sg:g('t-maint-sg'),g:g('t-maint-g'),y:g('t-maint-y')};
+  document.getElementById('t-notice').textContent='✓ Targets saved. All RAG scores and charts updated.';
+  renderAll();
+}
+
+loadAll();
+</script>
+</body>
+</html>
