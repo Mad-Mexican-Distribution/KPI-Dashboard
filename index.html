@@ -776,28 +776,48 @@ function saveTargets(){
   T.cpd  ={sg:g('t-cpd-sg'), g:g('t-cpd-g'), y:g('t-cpd-y')};
   T.maint={sg:g('t-maint-sg'),g:g('t-maint-g'),y:g('t-maint-y')};
   try{ localStorage.setItem('kpi-targets', JSON.stringify(T)); } catch(e){}
-  document.getElementById('t-notice').textContent='✓ Targets saved. All RAG scores and charts updated.';
   renderAll();
+  generateAndDownloadHTML();
+}
+
+async function generateAndDownloadHTML(){
+  const notice=document.getElementById('t-notice');
+  notice.textContent='⏳ Preparing download...';
+  try{
+    const resp=await fetch('https://raw.githubusercontent.com/mad-mexican-distribution/KPI-Dashboard/main/index.html');
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    let html=await resp.text();
+    const nv=x=>x===null?'null':x;
+    const newT=`let T={\n  bph:{sg:${nv(T.bph.sg)},g:${nv(T.bph.g)},y:${nv(T.bph.y)}}, cpb:{sg:${nv(T.cpb.sg)},g:${nv(T.cpb.g)},y:${nv(T.cpb.y)}},\n  cpk:{sg:${nv(T.cpk.sg)},g:${nv(T.cpk.g)},y:${nv(T.cpk.y)}}, cpd:{sg:${nv(T.cpd.sg)},g:${nv(T.cpd.g)},y:${nv(T.cpd.y)}},\n  maint:{sg:${nv(T.maint.sg)},g:${nv(T.maint.g)},y:${nv(T.maint.y)}}\n};`;
+    html=html.replace(/let T=\{[\s\S]*?\};/,newT);
+    const blob=new Blob([html],{type:'text/html'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='index.html';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    notice.innerHTML='✓ Targets saved &amp; <strong>index.html downloaded</strong>. Upload it to GitHub to apply on all devices.';
+  } catch(e){
+    notice.textContent='✓ Targets saved on this device. (Auto-download failed — upload the file to GitHub manually.)';
+  }
 }
 
 function loadTargets(){
+  // Try localStorage first (overrides baked-in values if present)
   try{
     const saved=localStorage.getItem('kpi-targets');
-    if(!saved) return;
-    const s=JSON.parse(saved);
-    const keys=['bph','cpb','cpk','cpd','maint'];
-    const bands=['sg','g','y'];
-    keys.forEach(k=>{
-      if(s[k]){ T[k]=s[k]; }
-    });
-    // Re-populate inputs so the Targets tab shows the saved values
-    const setIn=(id,v)=>{ const el=document.getElementById(id); if(el&&v!=null) el.value=v; };
-    setIn('t-bph-sg',T.bph.sg);  setIn('t-bph-g',T.bph.g);  setIn('t-bph-y',T.bph.y);
-    setIn('t-cpb-sg',T.cpb.sg);  setIn('t-cpb-g',T.cpb.g);  setIn('t-cpb-y',T.cpb.y);
-    setIn('t-cpk-sg',T.cpk.sg);  setIn('t-cpk-g',T.cpk.g);  setIn('t-cpk-y',T.cpk.y);
-    setIn('t-cpd-sg',T.cpd.sg);  setIn('t-cpd-g',T.cpd.g);  setIn('t-cpd-y',T.cpd.y);
-    setIn('t-maint-sg',T.maint.sg); setIn('t-maint-g',T.maint.g); setIn('t-maint-y',T.maint.y);
+    if(saved){
+      const s=JSON.parse(saved);
+      ['bph','cpb','cpk','cpd','maint'].forEach(k=>{ if(s[k]) T[k]=s[k]; });
+    }
   } catch(e){}
+  // Always populate inputs from T (covers both localStorage and baked-in values)
+  const setIn=(id,v)=>{ const el=document.getElementById(id); if(el&&v!=null) el.value=v; };
+  setIn('t-bph-sg',T.bph.sg);  setIn('t-bph-g',T.bph.g);  setIn('t-bph-y',T.bph.y);
+  setIn('t-cpb-sg',T.cpb.sg);  setIn('t-cpb-g',T.cpb.g);  setIn('t-cpb-y',T.cpb.y);
+  setIn('t-cpk-sg',T.cpk.sg);  setIn('t-cpk-g',T.cpk.g);  setIn('t-cpk-y',T.cpk.y);
+  setIn('t-cpd-sg',T.cpd.sg);  setIn('t-cpd-g',T.cpd.g);  setIn('t-cpd-y',T.cpd.y);
+  setIn('t-maint-sg',T.maint.sg); setIn('t-maint-g',T.maint.g); setIn('t-maint-y',T.maint.y);
 }
 
 loadTargets();
