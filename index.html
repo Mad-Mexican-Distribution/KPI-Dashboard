@@ -296,33 +296,33 @@ button{font-family:inherit;cursor:pointer}
 
 <!-- ═══ TARGETS ═══ -->
 <div id="sec-targets" class="sec">
-  <div class="info-bar">Set your own thresholds for each KPI. Red is automatic — anything worse than Yellow.</div>
+  <div class="info-bar">Thresholds are read from the <strong>Targets</strong> tab in your Google Sheet. To update them, edit that tab and click Refresh on the dashboard.</div>
   <div class="tpanel">
     <div class="tptitle">Boxes per hour</div>
     <div class="rrow"><div></div><div class="rch ch-sg">Super green<br><small>Above this</small></div><div class="rch ch-g">Green<br><small>Above this</small></div><div class="rch ch-y">Yellow<br><small>Above this</small></div><div class="rch ch-r">Red — auto</div></div>
-    <div class="rrow"><div class="rlbl">boxes/hr</div><input class="ri" id="t-bph-sg" type="number" placeholder="e.g. 90" min="0"><input class="ri" id="t-bph-g" type="number" placeholder="e.g. 80" min="0"><input class="ri" id="t-bph-y" type="number" placeholder="e.g. 70" min="0"><div class="rch ch-r" style="font-size:11px">Below yellow</div></div>
+    <div class="rrow"><div class="rlbl">boxes/hr</div><input class="ri" id="t-bph-sg" type="number" readonly><input class="ri" id="t-bph-g" type="number" readonly><input class="ri" id="t-bph-y" type="number" readonly><div class="rch ch-r" style="font-size:11px">Below yellow</div></div>
   </div>
   <div class="tpanel">
     <div class="tptitle">Cost per box ($)</div>
     <div class="rrow"><div></div><div class="rch ch-sg">Super green<br><small>Below this</small></div><div class="rch ch-g">Green<br><small>Below this</small></div><div class="rch ch-y">Yellow<br><small>Below this</small></div><div class="rch ch-r">Red — auto</div></div>
-    <div class="rrow"><div class="rlbl">$ / box</div><input class="ri" id="t-cpb-sg" type="number" placeholder="e.g. 0.40" min="0" step="0.01"><input class="ri" id="t-cpb-g" type="number" placeholder="e.g. 0.50" min="0" step="0.01"><input class="ri" id="t-cpb-y" type="number" placeholder="e.g. 0.65" min="0" step="0.01"><div class="rch ch-r" style="font-size:11px">Above yellow</div></div>
+    <div class="rrow"><div class="rlbl">$ / box</div><input class="ri" id="t-cpb-sg" type="number" readonly><input class="ri" id="t-cpb-g" type="number" readonly><input class="ri" id="t-cpb-y" type="number" readonly><div class="rch ch-r" style="font-size:11px">Above yellow</div></div>
   </div>
   <div class="tpanel">
     <div class="tptitle">Cost per km ($)</div>
     <div class="rrow"><div></div><div class="rch ch-sg">Super green<br><small>Below this</small></div><div class="rch ch-g">Green<br><small>Below this</small></div><div class="rch ch-y">Yellow<br><small>Below this</small></div><div class="rch ch-r">Red — auto</div></div>
-    <div class="rrow"><div class="rlbl">$ / km</div><input class="ri" id="t-cpk-sg" type="number" placeholder="e.g. 1.00" min="0" step="0.01"><input class="ri" id="t-cpk-g" type="number" placeholder="e.g. 1.20" min="0" step="0.01"><input class="ri" id="t-cpk-y" type="number" placeholder="e.g. 1.50" min="0" step="0.01"><div class="rch ch-r" style="font-size:11px">Above yellow</div></div>
+    <div class="rrow"><div class="rlbl">$ / km</div><input class="ri" id="t-cpk-sg" type="number" readonly><input class="ri" id="t-cpk-g" type="number" readonly><input class="ri" id="t-cpk-y" type="number" readonly><div class="rch ch-r" style="font-size:11px">Above yellow</div></div>
   </div>
   <div class="tpanel">
     <div class="tptitle">Cost per delivery ($)</div>
     <div class="rrow"><div></div><div class="rch ch-sg">Super green<br><small>Below this</small></div><div class="rch ch-g">Green<br><small>Below this</small></div><div class="rch ch-y">Yellow<br><small>Below this</small></div><div class="rch ch-r">Red — auto</div></div>
-    <div class="rrow"><div class="rlbl">$ / delivery</div><input class="ri" id="t-cpd-sg" type="number" placeholder="e.g. 30" min="0" step="0.01"><input class="ri" id="t-cpd-g" type="number" placeholder="e.g. 40" min="0" step="0.01"><input class="ri" id="t-cpd-y" type="number" placeholder="e.g. 50" min="0" step="0.01"><div class="rch ch-r" style="font-size:11px">Above yellow</div></div>
+    <div class="rrow"><div class="rlbl">$ / delivery</div><input class="ri" id="t-cpd-sg" type="number" readonly><input class="ri" id="t-cpd-g" type="number" readonly><input class="ri" id="t-cpd-y" type="number" readonly><div class="rch ch-r" style="font-size:11px">Above yellow</div></div>
   </div>
   <div class="tpanel">
     <div class="tptitle">Maintenance cost ($)</div>
     <div class="rrow"><div></div><div class="rch ch-sg">Super green<br><small>Below this</small></div><div class="rch ch-g">Green<br><small>Below this</small></div><div class="rch ch-y">Yellow<br><small>Below this</small></div><div class="rch ch-r">Red — auto</div></div>
-    <div class="rrow"><div class="rlbl">$ total</div><input class="ri" id="t-maint-sg" type="number" placeholder="e.g. 2000" min="0"><input class="ri" id="t-maint-g" type="number" placeholder="e.g. 3000" min="0"><input class="ri" id="t-maint-y" type="number" placeholder="e.g. 4000" min="0"><div class="rch ch-r" style="font-size:11px">Above yellow</div></div>
+    <div class="rrow"><div class="rlbl">$ total</div><input class="ri" id="t-maint-sg" type="number" readonly><input class="ri" id="t-maint-g" type="number" readonly><input class="ri" id="t-maint-y" type="number" readonly><div class="rch ch-r" style="font-size:11px">Above yellow</div></div>
   </div>
-  <button class="btn btn-primary" onclick="saveTargets()">&#x1F4BE; Save targets</button>
+  <a href="https://docs.google.com/spreadsheets/d/1FiAd62KDk6w6z9crVBE1ULCwcED1jehdZsX5lTPdD_I/edit" target="_blank" class="btn btn-primary">&#x270F;&#xFE0F; Edit targets in Google Sheet</a>
   <p style="font-size:11px;color:var(--text2);font-style:italic;margin-top:8px" id="t-notice"></p>
 </div>
 
@@ -335,7 +335,8 @@ button{font-family:inherit;cursor:pointer}
 const SHEET_ID   = '1FiAd62KDk6w6z9crVBE1ULCwcED1jehdZsX5lTPdD_I';
 const API_KEY    = 'AIzaSyAtuViUX3w3F-zPDYcQPPLEn3hosWjLkK4';
 const TAB_WEEKLY = 'Weekly KPI Data';
-const TAB_DAILY  = 'Daily KPI Data';
+const TAB_DAILY    = 'Daily KPI Data';
+const TAB_TARGETS  = 'Targets';
 
 // Weekly KPI Data columns (0-based)
 const CW = {
@@ -466,10 +467,26 @@ async function loadAll(){
   showMsg('loading','Loading data from Google Sheet...');
   setStatus('','Loading');
   try {
-    const [wRaw, dRaw] = await Promise.all([
+    const [wRaw, dRaw, tRaw] = await Promise.all([
       fetchTab(TAB_WEEKLY,'A5:BM300'),
-      fetchTab(TAB_DAILY, 'A5:L300')
+      fetchTab(TAB_DAILY, 'A5:L300'),
+      fetchTab(TAB_TARGETS,'A1:D6').catch(()=>[])
     ]);
+
+    // Parse targets tab (rows 1-5 after header = bph,cpb,cpk,cpd,maint)
+    const tData = tRaw.slice(1); // skip header row
+    const tv = (row,col) => row && row.length > col ? (parseFloat(row[col]) || null) : null;
+    const TKPIS = ['bph','cpb','cpk','cpd','maint'];
+    TKPIS.forEach((k,i)=>{
+      if(tData[i]) T[k] = {sg:tv(tData[i],1), g:tv(tData[i],2), y:tv(tData[i],3)};
+    });
+    // Populate Targets tab inputs with loaded values
+    const setIn=(id,v)=>{ const el=document.getElementById(id); if(el&&v!=null) el.value=v; else if(el) el.value=''; };
+    setIn('t-bph-sg',T.bph.sg);   setIn('t-bph-g',T.bph.g);   setIn('t-bph-y',T.bph.y);
+    setIn('t-cpb-sg',T.cpb.sg);   setIn('t-cpb-g',T.cpb.g);   setIn('t-cpb-y',T.cpb.y);
+    setIn('t-cpk-sg',T.cpk.sg);   setIn('t-cpk-g',T.cpk.g);   setIn('t-cpk-y',T.cpk.y);
+    setIn('t-cpd-sg',T.cpd.sg);   setIn('t-cpd-g',T.cpd.g);   setIn('t-cpd-y',T.cpd.y);
+    setIn('t-maint-sg',T.maint.sg); setIn('t-maint-g',T.maint.g); setIn('t-maint-y',T.maint.y);
 
     // Parse weekly rows — only rows with at least one KPI value
     ALL_WEEKLY = wRaw
@@ -765,64 +782,7 @@ function renderCharts(){
   }
 }
 
-// ═══════════════════════════════════════
-// TARGETS
-// ═══════════════════════════════════════
-function saveTargets(){
-  const g=id=>parseFloat(document.getElementById(id).value)||null;
-  T.bph  ={sg:g('t-bph-sg'), g:g('t-bph-g'), y:g('t-bph-y')};
-  T.cpb  ={sg:g('t-cpb-sg'), g:g('t-cpb-g'), y:g('t-cpb-y')};
-  T.cpk  ={sg:g('t-cpk-sg'), g:g('t-cpk-g'), y:g('t-cpk-y')};
-  T.cpd  ={sg:g('t-cpd-sg'), g:g('t-cpd-g'), y:g('t-cpd-y')};
-  T.maint={sg:g('t-maint-sg'),g:g('t-maint-g'),y:g('t-maint-y')};
-  try{ localStorage.setItem('kpi-targets', JSON.stringify(T)); } catch(e){}
-  renderAll();
-  generateAndDownloadHTML();
-}
-
-async function generateAndDownloadHTML(){
-  const notice=document.getElementById('t-notice');
-  notice.textContent='⏳ Preparing download...';
-  try{
-    const resp=await fetch('https://raw.githubusercontent.com/mad-mexican-distribution/KPI-Dashboard/main/index.html');
-    if(!resp.ok) throw new Error('HTTP '+resp.status);
-    let html=await resp.text();
-    const nv=x=>x===null?'null':x;
-    const newT=`let T={\n  bph:{sg:${nv(T.bph.sg)},g:${nv(T.bph.g)},y:${nv(T.bph.y)}}, cpb:{sg:${nv(T.cpb.sg)},g:${nv(T.cpb.g)},y:${nv(T.cpb.y)}},\n  cpk:{sg:${nv(T.cpk.sg)},g:${nv(T.cpk.g)},y:${nv(T.cpk.y)}}, cpd:{sg:${nv(T.cpd.sg)},g:${nv(T.cpd.g)},y:${nv(T.cpd.y)}},\n  maint:{sg:${nv(T.maint.sg)},g:${nv(T.maint.g)},y:${nv(T.maint.y)}}\n};`;
-    html=html.replace(/let T=\{[\s\S]*?\};/,newT);
-    const blob=new Blob([html],{type:'text/html'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url; a.download='index.html';
-    document.body.appendChild(a); a.click();
-    document.body.removeChild(a); URL.revokeObjectURL(url);
-    notice.innerHTML='✓ Targets saved &amp; <strong>index.html downloaded</strong>. Upload it to GitHub to apply on all devices.';
-  } catch(e){
-    notice.textContent='✓ Targets saved on this device. (Auto-download failed — upload the file to GitHub manually.)';
-  }
-}
-
-function loadTargets(){
-  // Try localStorage first (overrides baked-in values if present)
-  try{
-    const saved=localStorage.getItem('kpi-targets');
-    if(saved){
-      const s=JSON.parse(saved);
-      ['bph','cpb','cpk','cpd','maint'].forEach(k=>{ if(s[k]) T[k]=s[k]; });
-    }
-  } catch(e){}
-  // Always populate inputs from T (covers both localStorage and baked-in values)
-  const setIn=(id,v)=>{ const el=document.getElementById(id); if(el&&v!=null) el.value=v; };
-  setIn('t-bph-sg',T.bph.sg);  setIn('t-bph-g',T.bph.g);  setIn('t-bph-y',T.bph.y);
-  setIn('t-cpb-sg',T.cpb.sg);  setIn('t-cpb-g',T.cpb.g);  setIn('t-cpb-y',T.cpb.y);
-  setIn('t-cpk-sg',T.cpk.sg);  setIn('t-cpk-g',T.cpk.g);  setIn('t-cpk-y',T.cpk.y);
-  setIn('t-cpd-sg',T.cpd.sg);  setIn('t-cpd-g',T.cpd.g);  setIn('t-cpd-y',T.cpd.y);
-  setIn('t-maint-sg',T.maint.sg); setIn('t-maint-g',T.maint.g); setIn('t-maint-y',T.maint.y);
-}
-
-loadTargets();
 loadAll();
 </script>
 </body>
 </html>
-Update dashboard
