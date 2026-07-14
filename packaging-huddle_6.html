@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Packaging Station – Weekly Huddle · June 29 – July 5, 2026</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: #f3f4f6;
+      color: #1c1c2e;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    /* ── Header ── */
+    .hdr {
+      background: linear-gradient(135deg, #b71c1c 0%, #e53935 100%);
+      color: #fff;
+      padding: 18px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 14px rgba(183,28,28,0.35);
+    }
+    .hdr-left { display: flex; align-items: center; gap: 14px; }
+    .hdr-icon { font-size: 30px; line-height: 1; }
+    .hdr-title { font-size: 21px; font-weight: 800; letter-spacing: -0.02em; }
+    .hdr-sub   { font-size: 13px; opacity: 0.75; margin-top: 2px; }
+    .hdr-right { text-align: right; }
+    .hdr-brand   { font-size: 11px; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.09em; }
+    .hdr-status  { font-size: 11px; opacity: 0.5; margin-top: 4px; }
+
+    /* ── Layout ── */
+    .main { max-width: 1060px; margin: 0 auto; padding: 26px 16px 48px; }
+    .section { margin-bottom: 28px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .sec-hdr {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: #999; margin: 0 0 12px;
+    }
+    .sec-hdr::after { content: ''; flex: 1; height: 1px; background: #e2e2e2; }
+
+    .card {
+      background: #fff; border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+    }
+
+    /* ── Goals banner ── */
+    .goals-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    }
+    .goal-card {
+      background: #fff; border-radius: 12px; padding: 14px 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+      border-top: 4px solid #eee;
+      text-align: center;
+    }
+    .goal-card.sg { border-top-color: #0a5c35; }
+    .goal-card.g  { border-top-color: #2e7d32; }
+    .goal-card.y  { border-top-color: #c8a000; }
+    .goal-card.r  { border-top-color: #c62828; }
+    .goal-card.sg { background: #0a5c35; border-top-color: #063d23; }
+    .goal-card.g  { background: #2e7d32; border-top-color: #1b5e20; }
+    .goal-card.y  { background: #c8a000; border-top-color: #a08600; }
+    .goal-card.r  { background: #c62828; border-top-color: #8b0000; }
+    .goal-val  { font-size: 28px; font-weight: 800; margin-bottom: 2px; color: #fff; }
+    .goal-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: rgba(255,255,255,0.8); }
+    .goal-sub   { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 3px; }
+
+    /* ── Day cards ── */
+    .day-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .day-card {
+      background: #fff; border-radius: 12px; padding: 14px 10px 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+      display: flex; flex-direction: column; gap: 10px; text-align: center;
+    }
+    .day-card.is-today { border: 2px solid #e53935; box-shadow: 0 2px 10px rgba(229,57,53,0.18); }
+    .day-name {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; color: #bbb;
+      padding-bottom: 9px; border-bottom: 1px solid #f0f0f0;
+    }
+    .is-today .day-name { color: #e53935; border-bottom-color: #e53935; }
+    .metric-val { font-size: 23px; font-weight: 700; color: #1c1c2e; line-height: 1.1; }
+    .metric-val.dim { color: #d8d8d8; }
+    .metric-lbl { font-size: 10px; color: #c0c0c0; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+    .bph-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 60px; padding: 5px 12px; border-radius: 100px;
+      font-size: 20px; font-weight: 800; line-height: 1;
+    }
+    .bph-lbl { font-size: 10px; color: #c0c0c0; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; }
+    .rag-pill {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 3px 10px; border-radius: 100px;
+      font-size: 12px; font-weight: 700; line-height: 1; white-space: nowrap;
+    }
+    .sg { background: #0a5c35; color: #fff; }
+    .g  { background: #2e7d32; color: #fff; }
+    .y  { background: #c8a000; color: #fff; }
+    .r  { background: #c62828; color: #fff; }
+    .n  { background: #eeeeee; color: #c0c0c0; }
+
+    /* ── Chart ── */
+    .chart-wrap { padding: 16px 20px; }
+    .chart-canvas-wrap { position: relative; height: 220px; }
+
+    /* ── History table ── */
+    .tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    .tbl th {
+      background: #f8f9fa; padding: 9px 14px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; color: #999;
+      border-bottom: 2px solid #eee; text-align: left;
+    }
+    .tbl td { padding: 10px 14px; border-bottom: 1px solid #f3f3f3; vertical-align: middle; }
+    .tbl tr:last-child td { border-bottom: none; }
+    .tbl.nums th:not(:first-child),
+    .tbl.nums td:not(:first-child) { text-align: right; }
+    .tbl td:first-child { color: #555; }
+    .tbl tr.this-week td { background: #fff5f5; font-weight: 600; }
+    .tbl tr.this-week td:first-child { color: #333; }
+    .tbl tr:hover td { background: #fafafa; }
+    .tbl tr.this-week:hover td { background: #fff0f0; }
+    .tbl td.ra { text-align: right; }
+
+    /* ── Forecast & other tables ── */
+    .tbl.forecast th:not(:first-child),
+    .tbl.forecast td:not(:first-child) { text-align: right; }
+    .tbl.forecast td:first-child { font-weight: 600; color: #333; }
+    .tbl.forecast tr.total-row td { background: #f8f9fa; font-weight: 700; border-top: 2px solid #e0e0e0; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 100px;
+      font-size: 11px; font-weight: 700; white-space: nowrap;
+    }
+    .badge-red   { background: #fdecea; color: #c62828; }
+    .badge-amber { background: #fff8e1; color: #a08600; }
+    .badge-green { background: #e8f5e9; color: #2e7d32; }
+    .badge-blue  { background: #e3f2fd; color: #1565c0; }
+
+    /* ── Schedule ── */
+    .sched-row {
+      display: grid; grid-template-columns: 100px 1fr;
+      padding: 12px 20px; gap: 14px; align-items: start;
+      border-bottom: 1px solid #f3f3f3;
+    }
+    .sched-row:last-child { border-bottom: none; }
+    .sched-day {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: #bbb; padding-top: 1px;
+    }
+    .sched-day.is-today { color: #e53935; }
+    .sched-content { font-size: 13.5px; color: #444; line-height: 1.55; }
+    .sched-content strong { color: #1c1c2e; }
+
+    /* ── Notes ── */
+    .notes { padding: 16px 20px; font-size: 13.5px; color: #555; line-height: 1.75; }
+    .notes p { margin-bottom: 10px; }
+    .notes p:last-child { margin-bottom: 0; }
+
+    .footer { text-align: center; font-size: 11px; color: #ccc; margin-top: 8px; }
+
+    @media (max-width: 760px) {
+      .day-grid   { grid-template-columns: repeat(2, 1fr); }
+      .goals-grid { grid-template-columns: repeat(2, 1fr); }
+      .two-col    { grid-template-columns: 1fr; }
+      .hdr { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .hdr-right { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-icon">📦</div>
+    <div>
+      <div class="hdr-title">Packaging Station</div>
+      <div class="hdr-sub">Weekly Huddle &nbsp;·&nbsp; June 29 – July 5, 2026</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-brand">Mad Mexican Distribution</div>
+    <div class="hdr-status" id="hdr-status">Loading…</div>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- ══ GOALS ══ -->
+  <div class="section">
+    <div class="sec-hdr">🎯 BPH Goals — Boxes per Hour</div>
+    <div class="goals-grid">
+      <div class="goal-card sg">
+        <div class="goal-val" id="g-sg">—</div>
+        <div class="goal-label">⬆ Super Green</div>
+        <div class="goal-sub">boxes / hour</div>
+      </div>
+      <div class="goal-card g">
+        <div class="goal-val" id="g-g">—</div>
+        <div class="goal-label">Green</div>
+        <div class="goal-sub">boxes / hour</div>
+      </div>
+      <div class="goal-card y">
+        <div class="goal-val" id="g-y">—</div>
+        <div class="goal-label">Yellow — caution</div>
+        <div class="goal-sub">boxes / hour</div>
+      </div>
+      <div class="goal-card r">
+        <div class="goal-val">Below</div>
+        <div class="goal-label">Red — action needed</div>
+        <div class="goal-sub" id="g-r-sub">below yellow target</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ THIS WEEK ══ -->
+  <div class="section">
+    <div class="sec-hdr">📊 This Week — Daily Performance (Jun 29 – Jul 3)</div>
+    <div class="day-grid" id="day-grid"></div>
+  </div>
+
+  <!-- ══ PERFORMANCE HISTORY ══ -->
+  <div class="section">
+    <div class="sec-hdr">📈 Performance History — All Weeks</div>
+    <div class="two-col">
+      <!-- Chart -->
+      <div class="card">
+        <div class="chart-wrap">
+          <div style="font-size:12px;font-weight:700;color:#555;margin-bottom:12px;">Weekly Avg BPH vs Targets</div>
+          <div class="chart-canvas-wrap">
+            <canvas id="bph-chart"></canvas>
+          </div>
+        </div>
+      </div>
+      <!-- Table -->
+      <div class="card" style="padding:0; overflow:auto; align-self:start;">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Week</th>
+              <th style="text-align:right">Boxes</th>
+              <th style="text-align:right">Hours</th>
+              <th style="text-align:right">Avg BPH</th>
+              <th style="text-align:center">Status</th>
+            </tr>
+          </thead>
+          <tbody id="history-body">
+            <tr><td colspan="5" style="text-align:center;color:#bbb;padding:20px">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FORECAST ══ -->
+  <div class="section">
+    <div class="sec-hdr">📅 Forecast for the Week</div>
+    <div class="card" style="padding:0; overflow:auto;">
+      <table class="tbl forecast">
+        <thead>
+          <tr><th>SKU</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>CCB</td>  <td>113</td>   <td>199</td>   <td>91</td>    <td>77</td>    <td>79</td>   </tr>
+          <tr><td>CCW</td>  <td>660</td>   <td>752</td>   <td>518</td>   <td>632</td>   <td>278</td>  </tr>
+          <tr><td>DBBM</td> <td>240</td>   <td>265</td>   <td>260</td>   <td>200</td>   <td>100</td>  </tr>
+          <tr><td>DGH</td>  <td>630</td>   <td>620</td>   <td>590</td>   <td>535</td>   <td>130</td>  </tr>
+          <tr><td>DGM</td>  <td>1,525</td> <td>1,700</td> <td>1,790</td> <td>1,595</td> <td>370</td>  </tr>
+          <tr><td>SMH</td>  <td>140</td>   <td>150</td>   <td>130</td>   <td>80</td>    <td>35</td>   </tr>
+          <tr><td>SPGH</td> <td>580</td>   <td>495</td>   <td>520</td>   <td>450</td>   <td>100</td>  </tr>
+          <tr><td>SPGM</td> <td>1,220</td> <td>1,450</td> <td>1,190</td> <td>1,200</td> <td>260</td>  </tr>
+          <tr><td>SRTS</td> <td>130</td>   <td>150</td>   <td>150</td>   <td>90</td>    <td>30</td>   </tr>
+          <tr><td>SVM</td>  <td>110</td>   <td>115</td>   <td>110</td>   <td>75</td>    <td>30</td>   </tr>
+          <tr><td>TCW</td>  <td>45</td>    <td>10</td>    <td>31</td>    <td>35</td>    <td>8</td>    </tr>
+          <tr class="total-row">
+            <td>Total</td><td>5,393</td><td>5,906</td><td>5,380</td><td>4,968</td><td>1,419</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ PRIORITY ITEMS ══ -->
+  <div class="section">
+    <div class="sec-hdr">⚡ Priority Action Items</div>
+    <div class="card" style="padding:0; overflow:auto;">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="min-width:155px">Item</th>
+            <th>Action Required</th>
+            <th style="min-width:105px; text-align:center">Deadline</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Ziri off Wednesday</strong></td>
+            <td>Confirm if production support is needed to cover his station. Advise team lead by Tuesday end of shift.</td>
+            <td style="text-align:center"><span class="badge badge-red">Tue EOD</span></td>
+          </tr>
+          <tr>
+            <td><strong>Damaged cooler</strong></td>
+            <td>Inspect every cooler for leaks or damage following the Brand Ambassador report. Log findings and flag any unit for repair.</td>
+            <td style="text-align:center"><span class="badge badge-amber">Thursday</span></td>
+          </tr>
+          <tr>
+            <td><strong>Maintenance / repair requests</strong></td>
+            <td>No repair requests were logged last Friday. Reinforce with the team that equipment inspection and reporting is required every Friday.</td>
+            <td style="text-align:center"><span class="badge badge-amber">This Friday</span></td>
+          </tr>
+          <tr>
+            <td><strong>Soul7 Master List</strong></td>
+            <td>Master list with packaging day and delivery day is ready. Team to use it as reference to reduce packing and shipping errors.</td>
+            <td style="text-align:center"><span class="badge badge-green">Effective now</span></td>
+          </tr>
+          <tr>
+            <td><strong>Healthy Plant Merivale</strong></td>
+            <td>Missed order from last week to be packed and delivered this week. Confirm it is scheduled on a route.</td>
+            <td style="text-align:center"><span class="badge badge-blue">This week</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ DAILY SCHEDULE ══ -->
+  <div class="section">
+    <div class="sec-hdr">🗓️ Daily Schedule</div>
+    <div class="card" style="padding:0;">
+      <div class="sched-row">
+        <div class="sched-day" id="lbl-0">Monday</div>
+        <div class="sched-content">Regular routes Ottawa (3PL) · Soul7 receiving ~31 orders for final consumers · TCY Samples Project</div>
+      </div>
+      <div class="sched-row">
+        <div class="sched-day" id="lbl-1">Tuesday</div>
+        <div class="sched-content">Regular routes Summer Routes, North and East (3PL) · ~39 orders for final consumers · TCY Samples Project</div>
+      </div>
+      <div class="sched-row">
+        <div class="sched-day" id="lbl-2">Wednesday</div>
+        <div class="sched-content">Regular routes East Lynn FM · ~7 orders for final consumers · TCY Samples Project · <strong>Ziri off — confirm production coverage if needed</strong></div>
+      </div>
+      <div class="sched-row">
+        <div class="sched-day" id="lbl-3">Thursday</div>
+        <div class="sched-content">Regular routes · ~24 orders for final consumers · TCY Samples Project · Fuerza Latina, pack heavy items for Friday loading · <strong>Deadline: all coolers inspected</strong></div>
+      </div>
+      <div class="sched-row">
+        <div class="sched-day" id="lbl-4">Friday</div>
+        <div class="sched-content">Regular route 3 FMs · Fuerza Latina, pack salsas and chips · <strong>Weekly equipment inspection due</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ NOTES ══ -->
+  <div class="section">
+    <div class="sec-hdr">📝 Notes</div>
+    <div class="card">
+      <div class="notes">
+        <p><strong>TCY Samples Project:</strong> Special deliveries this week to 80 stores and approximately 100 final consumers. Final consumer orders will run on a dedicated route with a dedicated driver, distributed across the week as shown in the Daily Schedule.</p>
+        <p><strong>Fuerza Latina:</strong> Event takes place this weekend. Heavy items are packed Thursday for Friday loading; salsas and chips are packed Friday.</p>
+        <p><strong>Summer Routes (North and East)</strong> are packed Tuesday and run through the 3PL.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Mad Mexican Distribution · Packaging Station · Data refreshes on each page load</div>
+</div>
+
+<script>
+const API_KEY  = 'AIzaSyAtuViUX3w3F-zPDYcQPPLEn3hosWjLkK4';
+const SHEET_ID = '1FiAd62KDk6w6z9crVBE1ULCwcED1jehdZsX5lTPdD_I';
+
+// This huddle's week dates (Mon–Fri)
+const WEEK = [
+  { label:'Monday',    date:'2026-06-29' },
+  { label:'Tuesday',   date:'2026-06-30' },
+  { label:'Wednesday', date:'2026-07-01' },
+  { label:'Thursday',  date:'2026-07-02' },
+  { label:'Friday',    date:'2026-07-03' }
+];
+const HUDDLE_MON = '2026-06-29'; // Monday of this huddle's week
+
+// Columns (0-based, matches main KPI dashboard exactly)
+const CD = { date:0, boxes:2, packers:3, hours:4, bph:11 };
+
+// ── Helpers ──────────────────────────────────────────────
+function pn(s) {
+  if (!s && s !== 0) return null;
+  const n = parseFloat(String(s).replace(/,/g,''));
+  return isNaN(n) ? null : n;
+}
+function fmt(v, dec=0) {
+  if (v === null || v === undefined) return '—';
+  return Number(v).toLocaleString('en-CA', {minimumFractionDigits:dec, maximumFractionDigits:dec});
+}
+function todayISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+// Return YYYY-MM-DD for the Monday of the week containing dateStr
+function mondayISO(dateStr) {
+  const dt = new Date(dateStr);
+  if (isNaN(dt)) return null;
+  const day = dt.getDay();
+  const diff = dt.getDate() - day + (day === 0 ? -6 : 1);
+  dt.setDate(diff);
+  return dt.toISOString().slice(0,10);
+}
+// "Jul 6" style label for week starting at monISO
+function weekLabel(monISO) {
+  const mon = new Date(monISO + 'T12:00:00');
+  const fri = new Date(monISO + 'T12:00:00');
+  fri.setDate(fri.getDate() + 4);
+  const ms = mon.toLocaleDateString('en-CA', {month:'short', day:'numeric'});
+  const fs = fri.toLocaleDateString('en-CA', {month:'short', day:'numeric'});
+  return `${ms}–${fs}`;
+}
+function ragClass(v, T, higherBetter=true) {
+  if (v === null) return 'n';
+  if (higherBetter) {
+    if (T.sg !== null && v >= T.sg) return 'sg';
+    if (T.g  !== null && v >= T.g)  return 'g';
+    if (T.y  !== null && v >= T.y)  return 'y';
+    return 'r';
+  }
+  return 'n';
+}
+function ragLabel(cls) {
+  return {sg:'Super Green', g:'Green', y:'Yellow', r:'Red', n:'—'}[cls];
+}
+function ragColor(cls, alpha='ff') {
+  return {sg:`#0a5c35${alpha}`, g:`#2e7d32${alpha}`, y:`#c8a000${alpha}`, r:`#c62828${alpha}`, n:`#aaaaaa${alpha}`}[cls];
+}
+
+// ── Group daily rows into weeks ─────────────────────────
+// Returns array of {monISO, label, boxes, hours, bphSum, bphCount, days:[]}
+// sorted chronologically
+function groupByWeek(dailyRows) {
+  const buckets = {};
+  for (const d of dailyRows) {
+    const mon = mondayISO(d.date);
+    if (!mon) continue;
+    if (!buckets[mon]) buckets[mon] = {monISO:mon, label:weekLabel(mon), boxes:0, hours:0, bphSum:0, bphCount:0, days:[]};
+    const b = buckets[mon];
+    if (d.boxes  !== null) b.boxes   += d.boxes;
+    if (d.hours  !== null) b.hours   += d.hours;
+    if (d.bph    !== null) { b.bphSum += d.bph; b.bphCount++; }
+    b.days.push(d);
+  }
+  return Object.values(buckets).sort((a,b) => a.monISO.localeCompare(b.monISO));
+}
+
+// ── Render Goals ────────────────────────────────────────
+function renderGoals(T) {
+  document.getElementById('g-sg').textContent   = T.sg !== null ? fmt(T.sg) : '—';
+  document.getElementById('g-g').textContent    = T.g  !== null ? fmt(T.g)  : '—';
+  document.getElementById('g-y').textContent    = T.y  !== null ? fmt(T.y)  : '—';
+  document.getElementById('g-r-sub').textContent = T.y  !== null ? `below ${fmt(T.y)} bph` : 'below yellow target';
+}
+
+// ── Render daily cards for this week ───────────────────
+function renderDayCards(byDate, T) {
+  const today = todayISO();
+  document.getElementById('day-grid').innerHTML = WEEK.map((wd, i) => {
+    const d = byDate[wd.date] || {boxes:null, packers:null, hours:null, bph:null};
+    const isToday  = wd.date === today;
+    const isFuture = wd.date > today;
+    const cls = ragClass(d.bph, T);
+    const blank = `<span style="color:#ddd">—</span>`;
+    return `
+    <div class="day-card${isToday ? ' is-today' : ''}">
+      <div class="day-name">${wd.label}${isToday ? ' ★' : ''}</div>
+      <div>
+        <div class="metric-val${d.boxes===null?' dim':''}">${d.boxes!==null ? fmt(d.boxes) : (isFuture?blank:'—')}</div>
+        <div class="metric-lbl">Boxes Packed</div>
+      </div>
+      <div>
+        <div class="metric-val${d.hours===null?' dim':''}">${d.hours!==null ? fmt(d.hours,1) : (isFuture?blank:'—')}</div>
+        <div class="metric-lbl">Hours Worked</div>
+      </div>
+      <div>
+        <div class="metric-val${d.packers===null?' dim':''}">${d.packers!==null ? fmt(d.packers) : (isFuture?blank:'—')}</div>
+        <div class="metric-lbl">Packers</div>
+      </div>
+      <div>
+        <div class="bph-badge ${cls}">${d.bph!==null ? fmt(d.bph,1) : '—'}</div>
+        <div class="bph-lbl">BPH</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Highlight today in schedule
+  WEEK.forEach((wd,i) => {
+    const el = document.getElementById(`lbl-${i}`);
+    if (el && wd.date === today) el.classList.add('is-today');
+  });
+}
+
+// ── Render history table ────────────────────────────────
+function renderHistory(weeks, T) {
+  const tbody = document.getElementById('history-body');
+  if (!weeks.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#bbb;padding:20px">No data found in sheet</td></tr>';
+    return;
+  }
+  // Newest first
+  tbody.innerHTML = [...weeks].reverse().map(w => {
+    const avgBph = w.bphCount ? w.bphSum / w.bphCount : null;
+    const cls = ragClass(avgBph, T);
+    const isThis = w.monISO === HUDDLE_MON;
+    return `<tr class="${isThis ? 'this-week' : ''}">
+      <td>${w.label}${isThis ? ' <span style="font-size:10px;color:#e53935;font-weight:800">THIS WEEK</span>' : ''}</td>
+      <td class="ra">${w.boxes  ? fmt(w.boxes)    : '—'}</td>
+      <td class="ra">${w.hours  ? fmt(w.hours, 1) : '—'}</td>
+      <td class="ra">${avgBph   ? fmt(avgBph,  1) : '—'}</td>
+      <td style="text-align:center"><span class="rag-pill ${cls}">${ragLabel(cls)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Render BPH chart ────────────────────────────────────
+let chartInstance = null;
+function renderChart(weeks, T) {
+  const labels = weeks.map(w => w.label);
+  const bphData = weeks.map(w => w.bphCount ? +(w.bphSum / w.bphCount).toFixed(1) : null);
+  const colors  = bphData.map(v => ragColor(ragClass(v, T)));
+  const n = labels.length;
+
+  const tLine = (val, color) => val !== null ? {
+    label:'', data: Array(n).fill(val),
+    type:'line', borderColor: color, borderWidth: 1.5, borderDash: [4,3],
+    pointRadius: 0, fill: false
+  } : null;
+
+  const datasets = [
+    {
+      label: 'Avg BPH',
+      data: bphData,
+      backgroundColor: colors,
+      borderColor: colors,
+      borderWidth: 1.5,
+      borderRadius: 4
+    },
+    tLine(T.sg, '#0a5c35'),
+    tLine(T.g,  '#2e7d32'),
+    tLine(T.y,  '#c8a000')
+  ].filter(Boolean);
+
+  if (chartInstance) chartInstance.destroy();
+  const ctx = document.getElementById('bph-chart').getContext('2d');
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.dataset.label ? `${ctx.dataset.label}: ${ctx.parsed.y}` : null
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } },
+        y: {
+          beginAtZero: false,
+          grid: { color: '#f0f0f0' },
+          ticks: { font: { size: 11 } },
+          title: { display: true, text: 'boxes/hr', font: { size: 11 }, color: '#aaa' }
+        }
+      }
+    }
+  });
+}
+
+// ── Fetch ──────────────────────────────────────────────
+async function fetchTab(tab, range) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/`
+            + `${encodeURIComponent(tab)}!${range}?key=${API_KEY}`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return (await r.json()).values || [];
+}
+
+// ── Main ───────────────────────────────────────────────
+async function load() {
+  const statusEl = document.getElementById('hdr-status');
+
+  try {
+    const [targRows, dailyRaw] = await Promise.all([
+      fetchTab('Targets',        'A1:D6'),
+      fetchTab('Daily KPI Data', 'A5:L300')
+    ]);
+
+    // Parse targets — exactly as main dashboard
+    const tData = targRows.slice(1);
+    const tv = (row, col) => row && row.length > col ? (parseFloat(row[col]) || null) : null;
+    const T = { sg: tv(tData[0],1), g: tv(tData[0],2), y: tv(tData[0],3) };
+
+    renderGoals(T);
+
+    // Parse daily rows — same filter as main dashboard
+    const daily = dailyRaw
+      .filter(r => (r[CD.date]||r[1]) && (r[CD.date]||r[1]).toString().trim() !== '')
+      .filter(r => pn(r[CD.boxes]) !== null || pn(r[CD.bph]) !== null)
+      .map(r => ({
+        date    : (r[CD.date]||r[1]||'').toString().trim(),
+        boxes   : pn(r[CD.boxes]),
+        packers : pn(r[CD.packers]),
+        hours   : pn(r[CD.hours]),
+        bph     : pn(r[CD.bph])
+      }));
+
+    // Map by ISO date for this-week daily cards
+    const byDate = {};
+    for (const d of daily) {
+      const mon = mondayISO(d.date);
+      if (!mon) continue;
+      // Also store keyed by ISO date
+      const dt = new Date(d.date);
+      if (!isNaN(dt)) {
+        const iso = dt.toISOString().slice(0,10);
+        byDate[iso] = d;
+      }
+    }
+
+    renderDayCards(byDate, T);
+
+    // Group into weeks for history + chart
+    const weeks = groupByWeek(daily);
+    renderHistory(weeks, T);
+    renderChart(weeks, T);
+
+    statusEl.textContent = `Live · ${daily.length} days loaded`;
+
+  } catch(e) {
+    console.error(e);
+    statusEl.textContent = '⚠ Could not load data';
+    document.getElementById('history-body').innerHTML =
+      `<tr><td colspan="5" style="text-align:center;color:#c62828;padding:20px">Error: ${e.message}</td></tr>`;
+  }
+}
+
+load();
+</script>
+</body>
+</html>
